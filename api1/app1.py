@@ -8,11 +8,13 @@ https://fastapi-keycloak.code-specialist.com/
 
 
 import uvicorn
-from typing import Union, Optional
+from typing import Union, List
 from fastapi_keycloak import FastAPIKeycloak, OIDCUser
-from fastapi import FastAPI, Depends, Body, Header
+from fastapi import FastAPI, Depends, Body, Header, Query, Request
 from fastapi.testclient import TestClient
 from fastapi.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
+
 
 from utils.mysqlHelper1 import mysqlHelper1
 
@@ -20,11 +22,40 @@ import numpy as np
 import pandas as pd
 from pandas_datareader import data as pdr
 
+
 # below lines are necessary otherwise the code throws error: get_data_yahoo TypeError: string indices must be integers, not 'str'
 import yfinance as yfin
 yfin.pdr_override()
 
-app = FastAPI()
+def remove_request_body_for_get(endpoints):
+    for route in endpoints:
+        if route.methods == ["GET"]:
+            for content_type in route.content_types:
+                if content_type.get("schema"):
+                    content_type["schema"] = None
+    return endpoints
+
+app = FastAPI(    
+        title="FastAPI App1",          
+        description="python with fastapi",
+        version="0.0.1",
+        terms_of_service="http://example.com/terms/",
+        contact={
+            "name": "veni vidi vici",
+            "url": "http://x-force.example.com/contact/",
+            "email": "email@test.com",
+        },
+        license_info={
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+    )
+
+# app.openapi = get_openapi(
+#     title="api1 title",
+#     version="v0.1",
+#     routes=remove_request_body_for_get)
+
 idp = FastAPIKeycloak(
     #server_url="https://auth.some-domain.com/auth",
     # http://xps15:8180/realms/master/account/
@@ -45,15 +76,8 @@ def admin(user: OIDCUser = Depends(idp.get_current_user(required_roles=["admin"]
 def user_roles(user: OIDCUser = Depends(idp.get_current_user)):
     return f'{user.roles}'
 
-@app.get("/public/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
 @app.get("/public/db")
-def connect_to_db(
-    user_agent: Optional[str] = Header(None, include_in_schema=False), 
-    size: Optional[int] = Body(None) ):
-
+def connect_to_db():
     queryPrice = """
         SELECT p.AsOfDate, i.ISIN, p.ClosePrice, i.PriceCurrency, i.LegalName
         FROM fundprices p 
@@ -78,12 +102,23 @@ def connect_to_db(
         })
     return JSONResponse(content=objArray)
 
+
 if __name__ == '__main__':
     uvicorn.run('app1:app', host="127.0.0.1", port=8081)
 
+@app.get("/mytest1/")
+def read_items(q: List[int] = Query(None)):
+    return {"q": q}
+
+@app.get("/public/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
 
 @app.get("/user/prices/{ticker}")
-def user_roles(ticker: str = "TUPRS.IS", user: OIDCUser = Depends(idp.get_current_user)):
+def get_ret_vol_by_ticker(
+    ticker: str = "SPY"
+    #, user: OIDCUser = Depends(idp.get_current_user)
+    ):
     symbols_tr_1 = ticker
     prices_all_cols = pdr.get_data_yahoo(symbols_tr_1, start="2023-01-01", end="2023-04-19")
     #prices_all_cols.to_csv (r'C:\temp5\prices\prices-20230101-20230419-symbols_tr_2.csv')
