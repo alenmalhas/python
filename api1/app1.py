@@ -9,10 +9,11 @@ https://www.coursera.org/learn/introduction-portfolio-construction-python/lectur
 '''
 
 
+from jose import ExpiredSignatureError
 import uvicorn
-from typing import Union, List
+from typing import Annotated, Union, Optional
 from fastapi_keycloak import FastAPIKeycloak, OIDCUser
-from fastapi import FastAPI, Depends, Body, Header, Query, Request
+from fastapi import FastAPI, Depends, Body, Header, Query, Request, HTTPException
 from fastapi.testclient import TestClient
 from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
@@ -65,17 +66,59 @@ idp = FastAPIKeycloak(
 )
 idp.add_swagger_config(app)
 
+
+@app.exception_handler(ExpiredSignatureError)
+async def expired_signature_error_handler(request, exc):
+    #raise HTTPException(status_code=401, detail="Expired Signature")
+    resp = JSONResponse(content= f"{exc}", status_code=401)
+    return resp
+
 @app.get("/admin")
 def admin(user: OIDCUser = Depends(idp.get_current_user(required_roles=["admin"]))):
     return f'Hi premium user {user}'
 
 @app.get("/user/roles")
-def user_roles(user: OIDCUser = Depends(idp.get_current_user)):
+def user_roles(
+        #user: OIDCUser = Depends(idp.get_current_user)):
+        user: OIDCUser = Depends(idp.get_current_user(required_roles=["api-user"]))):
     try:
-        resp = JSONResponse(content=f'{user.realm_access.roles}', status_code=200)
+        outObj = {
+            'preferred_username': user.preferred_username,
+            'email': user.email,
+            'given_name' : user.given_name,
+            'family_name' : user.family_name,
+            'roles' : user.realm_access['roles']
+        }
+        resp = JSONResponse(content=outObj, status_code=200)
     except Exception as e:
         resp = JSONResponse(content= f"error: " + e.__str__(), status_code=400)
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Expired Signature")
+
     return resp
+
+
+from pydantic import BaseModel
+
+class User(BaseModel):
+    username: str
+    email: str
+    roles: list
+
+# @app.get("/user/me", response_model=User)
+# async def read_users_me(user: User = Depends(idp.get_current_user)):
+#     return user
+
+from fastapi import FastAPI, Depends
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.get("/user/me")
+#async def read_items(token: str = Depends(oauth2_scheme)):
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}
+
 
 @app.get("/public/db")
 def connect_to_db():
@@ -108,7 +151,7 @@ if __name__ == '__main__':
     uvicorn.run('app1:app', host="127.0.0.1", port=8081, reload=True)
 
 @app.get("/mytest1/")
-def read_items(q: List[int] = Query(None)):
+def read_items(q: list[int] = Query(None)):
     return {"q": q}
 
 @app.get("/public/test/{item_id}")

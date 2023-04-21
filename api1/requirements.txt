@@ -7,3 +7,4 @@ fastapi_keycloak
 httpx
 mysql-connector
 pandas_ta
+jose
