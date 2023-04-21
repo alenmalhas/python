@@ -1,6 +1,7 @@
 import pandas as pd
 from pandas_datareader import data as pdr
 import numpy as np
+import datetime as dt
 
 import yfinance as yfin
 yfin.pdr_override()
@@ -20,7 +21,10 @@ def read_from_file():
 
 def get_data_from_yf():
     symbols_tr_1 = "TUPRS.IS"
-    prices_all_cols = pdr.get_data_yahoo(symbols_tr_1, start="2023-01-01", end="2023-04-19")
+    endDate = dt.datetime.today().strftime('%Y-%m-%d')
+    startDate = (dt.datetime.today()-dt.timedelta(7)).strftime('%Y-%m-%d')
+    prices_all_cols = pdr.get_data_yahoo(symbols_tr_1, start=startDate, end=endDate)
+                                            #start="2023-01-01", end="2023-04-19")
     #prices_all_cols.to_csv (r'C:\temp5\prices\prices-20230101-20230419-symbols_tr_2.csv')
     prices_all_cols.head(5)
     #prices_symbols_tr_fromDisk = pd.read_csv(r'C:\temp5\prices\prices-20230101-20230419-symbols_tr_1.csv')
@@ -39,8 +43,11 @@ def get_data_from_yf():
     print(outString)
 
 def get_test_data_spy():
-    spy = pdr.get_data_yahoo('SPY', start='2022-10-24', end='2022-12-23')
+    endDate = dt.datetime.today().strftime('%Y-%m-%d')
+    startDate = (dt.datetime.today()-dt.timedelta(7)).strftime('%Y-%m-%d')
+    spy = pdr.get_data_yahoo('SPY', start=startDate, end=endDate)
+                             #start='2022-10-24', end='2022-12-23')
     print(spy)
 
 get_test_data_spy()
-get_data_from_yf()
+#get_data_from_yf()

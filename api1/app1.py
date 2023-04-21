@@ -4,6 +4,8 @@ Protect the API with keycloak
 https://pythonawesome.com/keycloak-integration-for-python-fastapi/#:~:text=Welcome%20to%20fastapi-keycloak.%20This%20projects%20goal%20is%20to,method%20accepts%20any%20JWT%20that%20was%20signed%20using
 
 https://fastapi-keycloak.code-specialist.com/
+
+https://www.coursera.org/learn/introduction-portfolio-construction-python/lecture/PM6k4/lab-session-risk-adjusted-returns
 '''
 
 
@@ -20,7 +22,9 @@ from utils.mysqlHelper1 import mysqlHelper1
 
 import numpy as np
 import pandas as pd
+import pandas_ta as ta
 from pandas_datareader import data as pdr
+import datetime as dt
 
 
 # below lines are necessary otherwise the code throws error: get_data_yahoo TypeError: string indices must be integers, not 'str'
@@ -42,7 +46,7 @@ app = FastAPI(
         terms_of_service="http://example.com/terms/",
         contact={
             "name": "veni vidi vici",
-            "url": "http://x-force.example.com/contact/",
+            "url": "https://www.coursera.org/learn/introduction-portfolio-construction-python/lecture/PM6k4/lab-session-risk-adjusted-returns",
             "email": "email@test.com",
         },
         license_info={
@@ -51,14 +55,7 @@ app = FastAPI(
         },
     )
 
-# app.openapi = get_openapi(
-#     title="api1 title",
-#     version="v0.1",
-#     routes=remove_request_body_for_get)
-
 idp = FastAPIKeycloak(
-    #server_url="https://auth.some-domain.com/auth",
-    # http://xps15:8180/realms/master/account/
     server_url="http://xps15:8085/auth",
     client_id="python-api-client1",
     client_secret="2pUzuY341JtmvN995dUkPR8WFIrd6ajC",
@@ -74,7 +71,11 @@ def admin(user: OIDCUser = Depends(idp.get_current_user(required_roles=["admin"]
 
 @app.get("/user/roles")
 def user_roles(user: OIDCUser = Depends(idp.get_current_user)):
-    return f'{user.roles}'
+    try:
+        resp = JSONResponse(content=f'{user.realm_access.roles}', status_code=200)
+    except Exception as e:
+        resp = JSONResponse(content= f"error: " + e.__str__(), status_code=400)
+    return resp
 
 @app.get("/public/db")
 def connect_to_db():
@@ -104,17 +105,17 @@ def connect_to_db():
 
 
 if __name__ == '__main__':
-    uvicorn.run('app1:app', host="127.0.0.1", port=8081)
+    uvicorn.run('app1:app', host="127.0.0.1", port=8081, reload=True)
 
 @app.get("/mytest1/")
 def read_items(q: List[int] = Query(None)):
     return {"q": q}
 
-@app.get("/public/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
+@app.get("/public/test/{item_id}")
+def read_item(item_id: Union[int, None] = None, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
-@app.get("/user/prices/{ticker}")
+@app.get("/user/prices/ticker")
 def get_ret_vol_by_ticker(
     ticker: str = "SPY"
     #, user: OIDCUser = Depends(idp.get_current_user)
@@ -146,4 +147,27 @@ def get_ret_vol_by_ticker(
 
     print(outObj)
     return JSONResponse(content=outObj)
+
+
+
+@app.get("/public/moving-average")
+def calc_moving_average(tickers: str = 'BTC-USD ETH-USD XRP-USD XEM-USD'):
+    tickersArr = tickers.split(' ')
+
+    technicals = ['sma10', 'sma25', 'vwma']
+
+    endDate = dt.datetime.today().strftime('%Y-%m-%d')
+    startDate = (dt.datetime.today()-dt.timedelta(60)).strftime('%Y-%m-%d')
+
+    df = yfin.download(tickersArr, start=startDate, end=endDate, interval='1d',)
+    
+    for ticker in tickersArr:
+        for tech in technicals:
+            if tech[:2] == 'sma':
+                noOfDays = int(tech[3:])
+                df[(tech, ticker)] = ta.sma(df.loc[:,('Close', ticker)], length=noOfDays)
+            else:
+                df[(tech, ticker)] = ta.vwma(df.loc[:,('Close', ticker)], df.loc[:,('Volume', ticker)])
+    
+    return df.to_json()
 
