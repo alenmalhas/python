@@ -1,0 +1,16 @@
+def FindIntersection(strArr):
+  str0 = strArr[0]
+  str1 = strArr[1]
+  numArr0 = list(filter(None, str0.split(',')))
+  numArr1 = list(filter(None, str1.split(',')))
+
+  commonList = []
+  for el1 in numArr0:
+    if numArr1.__contains__(el1):
+      commonList.append(el1)
+  
+  # code goes here
+  return commonList
+
+# keep this function call here 
+print(FindIntersection(input()))
