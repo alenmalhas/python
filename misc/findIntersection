@@ -1,8 +1,10 @@
 def FindIntersection(strArr):
   str0 = strArr[0]
   str1 = strArr[1]
-  numArr0 = list(filter(None, str0.split(',')))
-  numArr1 = list(filter(None, str1.split(',')))
+  #numArr0 = list(filter(None, str0.split(',')))
+  numArr0 = [x.strip() for x in str0.split(',') if x.strip()]
+  #numArr1 = list(filter(None, str1.split(',')))
+  numArr1= [x.strip() for x in str1.split(',') if x.strip()]
 
   commonList = []
   for el1 in numArr0:
@@ -10,7 +12,7 @@ def FindIntersection(strArr):
       commonList.append(el1)
   
   # code goes here
-  return commonList
+  return "false" if len(commonList)==0 else commonList
 
 # keep this function call here 
-print(FindIntersection(input()))
+print(FindIntersection(["1, 2, 3, 4, 5", "6, 7, 8, 9, 10"]))

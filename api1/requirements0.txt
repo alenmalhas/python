@@ -1,0 +1,11 @@
+pandas
+pandas_datareader
+yfinance
+matplotlib
+unicorn
+fastapi_keycloak
+httpx
+mysql-connector
+pandas_ta
+jose
+python-multipart

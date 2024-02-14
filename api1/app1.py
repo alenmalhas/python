@@ -11,13 +11,13 @@ https://www.coursera.org/learn/introduction-portfolio-construction-python/lectur
 
 from jose import ExpiredSignatureError
 import uvicorn
-from typing import Annotated, Union, Optional
-from fastapi_keycloak import FastAPIKeycloak, OIDCUser
+from fastapi_keycloak import FastAPIKeycloak, OIDCUser, UsernamePassword, HTTPMethod, KeycloakUser, KeycloakGroup
 from fastapi import FastAPI, Depends, Body, Header, Query, Request, HTTPException
 from fastapi.testclient import TestClient
 from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
-
+from pydantic import SecretStr
+from typing import Annotated, Union, Optional, List
 
 from utils.mysqlHelper1 import mysqlHelper1
 
@@ -56,10 +56,27 @@ app = FastAPI(
         },
     )
 
+
+origins = [
+    "http://localhost:3000",
+    "https://webapp1.propertysearchrobot.com",
+]
+
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 idp = FastAPIKeycloak(
     server_url="http://xps15:8085/auth",
-    client_id="python-api-client1",
-    client_secret="2pUzuY341JtmvN995dUkPR8WFIrd6ajC",
+    # client_id="python-api-client1",
+    # client_secret="2pUzuY341JtmvN995dUkPR8WFIrd6ajC",
+    client_id="test-client",
+    client_secret="GzgACcJzhzQ4j8kWhmhazt7WSdxDVUyE",
     admin_client_secret="BIcczGsZ6I8W5zf0rZg5qSexlloQLPKB",
     realm="Test",
     callback_uri="http://localhost:8081/callback"
@@ -72,6 +89,11 @@ async def expired_signature_error_handler(request, exc):
     #raise HTTPException(status_code=401, detail="Expired Signature")
     resp = JSONResponse(content= f"{exc}", status_code=401)
     return resp
+
+
+# -----------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------
 
 @app.get("/admin")
 def admin(user: OIDCUser = Depends(idp.get_current_user(required_roles=["admin"]))):
@@ -192,7 +214,6 @@ def get_ret_vol_by_ticker(
     return JSONResponse(content=outObj)
 
 
-
 @app.get("/public/moving-average")
 def calc_moving_average(tickers: str = 'BTC-USD ETH-USD XRP-USD XEM-USD'):
     tickersArr = tickers.split(' ')
@@ -213,4 +234,7 @@ def calc_moving_average(tickers: str = 'BTC-USD ETH-USD XRP-USD XEM-USD'):
                 df[(tech, ticker)] = ta.vwma(df.loc[:,('Close', ticker)], df.loc[:,('Volume', ticker)])
     
     return df.to_json()
+
+
+# -----------------------------------------------------------------------------------------------
 
