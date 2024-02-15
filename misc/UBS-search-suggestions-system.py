@@ -9,6 +9,33 @@ https://dev.to/seanpgallivan/solution-search-suggestions-system-90e
 
 Leetcode Solutions Index
 https://dev.to/seanpgallivan/leetcode-solutions-index-57fl
+
+Example 1:	
+Input:	products = ["mobile","mouse","moneypot","monitor","mousepad"], searchWord = "mouse"
+Output:	[
+["mobile","moneypot","monitor"],
+["mobile","moneypot","monitor"],
+["mouse","mousepad"],
+["mouse","mousepad"],
+["mouse","mousepad"]
+]
+Explanation:	
+    products sorted lexicographically = ["mobile","moneypot","monitor","mouse","mousepad"]
+After typing m and mo all products match and we show user ["mobile","moneypot","monitor"]
+After typing mou, mous and mouse the system suggests ["mouse","mousepad"]
+
+
+Example 2:	
+Input:	products = ["havana"], searchWord = "havana"
+Output:	[["havana"],["havana"],["havana"],["havana"],["havana"],["havana"]]
+
+Example 3:	
+Input:	products = ["bags","baggage","banner","box","cloths"], searchWord = "bags"
+Output:	[["baggage","bags","banner"],["baggage","bags","banner"],["baggage","bags"],["bags"]]
+
+Example 4:	
+Input:	products = ["havana"], searchWord = "tatiana"
+Output:	[[],[],[],[],[],[],[]]
 '''
 
 class Solution:
