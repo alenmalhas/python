@@ -7,8 +7,17 @@ solution:
 https://dev.to/seanpgallivan/solution-search-suggestions-system-90e
 
 
+UBS: search suggestion question; sample word: camera
+	
+Leetcode 1268. Search Suggestions System ( Java / Javascript / C#)
+https://thechanmoon.medium.com/leetcode-1268-search-suggestions-system-java-javascript-53a30cf69564
+
+Solution: Search Suggestions System
+https://dev.to/seanpgallivan/solution-search-suggestions-system-90e
+
 Leetcode Solutions Index
 https://dev.to/seanpgallivan/leetcode-solutions-index-57fl
+
 
 Example 1:	
 Input:	products = ["mobile","mouse","moneypot","monitor","mousepad"], searchWord = "mouse"
@@ -36,6 +45,7 @@ Output:	[["baggage","bags","banner"],["baggage","bags","banner"],["baggage","bag
 Example 4:	
 Input:	products = ["havana"], searchWord = "tatiana"
 Output:	[[],[],[],[],[],[],[]]
+
 '''
 
 class Solution:
