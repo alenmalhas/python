@@ -4,3 +4,5 @@ python-dotenv
 tiktoken
 langchain
 pandas
+sentence_transformers
+pgvector
