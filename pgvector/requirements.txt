@@ -1,0 +1,6 @@
+psycopg2-binary
+#openai
+python-dotenv
+tiktoken
+langchain
+pandas
