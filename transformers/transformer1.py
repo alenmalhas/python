@@ -57,9 +57,26 @@ def Run6_QuestionAnswering():
         context="I am superman, i work as a superhero at Marvel Studios, i came from a far away planet to save your species."
         )
 
+
+from transformers import BertTokenizerFast, EncoderDecoderModel
+import torch
+# ref: https://huggingface.co/mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization
+def generate_summary(text, tokenizer, device, model):
+    # cut off at BERT max length 512
+    inputs = tokenizer([text], padding="max_length", truncation=True, max_length=512, return_tensors="pt")
+    input_ids = inputs.input_ids.to(device)
+    attention_mask = inputs.attention_mask.to(device)
+
+    output = model.generate(input_ids, attention_mask=attention_mask)
+
+    return tokenizer.decode(output[0], skip_special_tokens=True)
+  
+
 def Run7_Summarization():
-    summarization = pipeline("summarization", model="mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization")
-    output = summarization('''
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    tokenizer = BertTokenizerFast.from_pretrained('mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization')
+    model = EncoderDecoderModel.from_pretrained('mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization').to(device)
+    input_text = '''
 How do you cover nearly a century of sand, oil, and blood in less than four minutes? PIC Agency’s titles for The Kingdom do just that, 
 giving viewers a geopolitical crash course in U.S.–Saudi Arabia relations that contextualizes the events depicted in the 2007 action thriller.
                   
@@ -67,8 +84,11 @@ Using a combination of infographics and news footage, this illustrated clash of 
 its people, and its relationship with the West. A less inspired approach would have been to deliver the facts through a dry, text-only prologue; instead, 
 the sequence envelops viewers in a sandstorm of charts and details. Before you can fully register one fact, you’ve learned two more. Acting as a primer, 
 a sort of CliffsNotes for Saudi Arabia, the sequence briefs us for entry into The Kingdom.
-    ''')
-    print(output)
+    '''
+    from pathlib import Path
+    input_text2 = Path('C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt').read_text()
+    summary = generate_summary(input_text2, tokenizer, device, model)
+    print(summary)
 
 def Run8_Translation():
     translation = pipeline("translation", model="Helsinki-NLP/opus-mt-tc-big-en-tr")
@@ -96,9 +116,9 @@ def main():
     Run4_FillMask()
     Run5_NamedEntityRecognition()
     '''
-    Run6_QuestionAnswering()
+    #Run6_QuestionAnswering()
     Run7_Summarization()
-    Run8_Translation()
+    #Run8_Translation()
     
 
 if __name__ == '__main__':
