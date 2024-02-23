@@ -1,0 +1,25 @@
+{% comment %} {% extends "base.html" %} {% endcomment %}
+
+{% block content %}
+
+<h1>similarity with django & pgvector</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type=text name="input_text"></input><br/>
+    <input type=submit name="submit"/><br/>
+    <a href="{% url 'index' %}">Back to List Page</a>
+</form>
+
+input_text: {{ input_text }} <br/>
+most_similar: {{ most_similar.document }}<br/>
+<hr/>
+
+{% for em in embeddings %}
+    {{ em.document }}  
+    <pre>embedding size: {{ em.embedding.size }}</pre>
+    <br/>
+    <hr/>
+{% endfor %}
+
+{% endblock content %}
