@@ -22,9 +22,6 @@ def index(request):
     context = {'embeddings':embeddings}
     return render(request, 'index.html', context)
 
-def get_embedding(text):
-    return text
-
 
 import requests
 import os
