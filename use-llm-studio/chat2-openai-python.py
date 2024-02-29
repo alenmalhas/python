@@ -31,6 +31,8 @@ response = client.chat.completions.create(
   presence_penalty=0,
   stop=None)
 
+print(response)
+
 output_model = response.choices[0].message.content
 output_formatted = output_model.replace('\\n', '\n').replace('\\t', '\t')
 
