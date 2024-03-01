@@ -44,9 +44,29 @@ def Run4_FillMask():
     for result in predictions:
         print(result)
 
-def Run5_NamedEntityRecognition():
+def Run5_01_NamedEntityRecognition_Sentence():
     ner = pipeline("ner", model="distilgpt2", aggregation_strategy="simple")
     predictions = ner("I am superman, i work as a superhero at Marvel Studios, i came from a far away planet to save your species.")
+    for result in predictions:
+        print(result)
+
+def Run5_02_NamedEntityRecognition_Paragraph():
+    ner = pipeline("ner", model="distilgpt2", aggregation_strategy="simple")
+    input_text = '''
+	This lease made the [27.01.1958] 27th day of January 1958 between Davis Contractors 
+Limited whose registered office is situated at 352 Kilburn High Road 
+in the county of London (hereinafter called "the lessor" which 
+expression shall where the context so permits include the persons 
+for the time being entitled to the reversion immediately expectant 
+on the determination of the term hereby created) of the first part
+RAYMOND LAKE of 88 Long Lane Ickenham in the county of Middlesex
+(hereinafter called "the Lessee" which expression shall where the context so permits include the persons deriving title under the
+Lessee) of the second part and FLATS AND ESTATES MANAGEMENT LIMITED
+whose registered office is situated at 157 Vitoria Street in the
+City of Westminster SW1 (hereinafter called "the Company") of
+the third part
+    '''
+    predictions = ner(input_text)
     for result in predictions:
         print(result)
 
@@ -76,7 +96,7 @@ def Run7_Summarization():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     tokenizer = BertTokenizerFast.from_pretrained('mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization')
     model = EncoderDecoderModel.from_pretrained('mrm8488/bert-small2bert-small-finetuned-cnn_daily_mail-summarization').to(device)
-    input_text = '''
+    input_text1 = '''
 How do you cover nearly a century of sand, oil, and blood in less than four minutes? PIC Agency’s titles for The Kingdom do just that, 
 giving viewers a geopolitical crash course in U.S.–Saudi Arabia relations that contextualizes the events depicted in the 2007 action thriller.
                   
@@ -86,7 +106,7 @@ the sequence envelops viewers in a sandstorm of charts and details. Before you c
 a sort of CliffsNotes for Saudi Arabia, the sequence briefs us for entry into The Kingdom.
     '''
     from pathlib import Path
-    input_text2 = Path('C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt').read_text()
+    input_text2 = Path(r'C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt').read_text()
     summary = generate_summary(input_text2, tokenizer, device, model)
     print(summary)
 
@@ -95,6 +115,28 @@ def Run8_Translation():
     predictions = translation("I know Tom didn't want to eat that.")
     for result in predictions:
         print(result)
+
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, BitsAndBytesConfig
+import torch
+
+def Run9_Conversational():
+    # Load tokenizer and model with QLoRA configuration
+    compute_dtype = getattr(torch, "float16")    
+    quantization_config = BitsAndBytesConfig(
+        load_in_8bit=True,
+        bnb_4bit_quant_type="nf4", #normal float4 (QLora: https://arxiv.org/pdf/2305.14314.pdf)
+        bnb_4bit_compute_dtype=compute_dtype,
+        bnb_4bit_use_double_quant=False,
+    )
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf", token="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")
+    model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf", quantization_config=quantization_config)
+    messages = [
+        {'role': 'system', 'content': 'You are a chatbot.'},
+        {'role': 'user', 'content': 'How are you?'}
+    ]
+    pipe = pipeline("conversational", model=model, tokenizer=tokenizer)
+    r = pipe(messages)
+    print(r)
 
 
 def fun(x):
@@ -114,11 +156,15 @@ def main():
     Run2_ZeroShot()
     Run3_TextGeneration()
     Run4_FillMask()
-    Run5_NamedEntityRecognition()
-    '''
-    #Run6_QuestionAnswering()
+    Run5_01_NamedEntityRecognition_Sentence()
+    Run5_02_NamedEntityRecognition_Paragraph()
+    Run6_QuestionAnswering()
     Run7_Summarization()
-    #Run8_Translation()
+    Run8_Translation()
+    Run9_Conversational()
+    '''
+    Run5_02_NamedEntityRecognition_Paragraph()
+    #Run9_Conversational()
     
 
 if __name__ == '__main__':
