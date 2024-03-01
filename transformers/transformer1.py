@@ -107,8 +107,12 @@ a sort of CliffsNotes for Saudi Arabia, the sequence briefs us for entry into Th
     '''
     from pathlib import Path
     input_text2 = Path(r'C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt').read_text()
-    summary = generate_summary(input_text2, tokenizer, device, model)
-    print(summary)
+
+    summary1 = generate_summary(input_text1, tokenizer, device, model)
+    print("\nSummary1: \n"+summary1)
+
+    summary2 = generate_summary(input_text2, tokenizer, device, model)
+    print("\nSummary2: \n"+summary2)
 
 def Run8_Translation():
     translation = pipeline("translation", model="Helsinki-NLP/opus-mt-tc-big-en-tr")
@@ -163,8 +167,9 @@ def main():
     Run8_Translation()
     Run9_Conversational()
     '''
-    Run5_02_NamedEntityRecognition_Paragraph()
+    #Run5_02_NamedEntityRecognition_Paragraph()
     #Run9_Conversational()
+    Run7_Summarization()
     
 
 if __name__ == '__main__':
