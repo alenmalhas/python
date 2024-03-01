@@ -1,4 +1,3 @@
-import fileinput
 import re
 from pathlib import Path
 
@@ -16,6 +15,7 @@ def split_paragraphs(input_text=""):
 
 '''
 # sample code, to split all script input files into paragraphs
+import fileinput
 text = "".join(fileinput.input())
 for paragraph in split_paragraphs(text):
     print(f"<<{paragraph}>>\n")
@@ -28,6 +28,3 @@ file_path = r'C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt'
 input_file_content = Path(file_path).read_text()
 list_paragraphs = split_paragraphs(input_file_content)
 print(list_paragraphs)
-
-
-
