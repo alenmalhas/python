@@ -1,3 +1,5 @@
+'''
+
 #Note: The openai-python library support for Azure OpenAI is in preview.
 import os
 from openai import OpenAI, types
@@ -50,61 +52,70 @@ def GetContentFromChatCompletion(response: types.chat.chat_completion.ChatComple
 
 
 
-#client = OpenAI(base_url="http://xps15:1234/v1", api_key="not-needed")
-client = OpenAI(base_url="http://xps15:11434/v1", api_key="ollama")
-'''
-messages = [
-    {
-        "role": "system",
-        "content": "You are a friendly chatbot who always responds in the style of a pirate",
-    },
-    {"role": "user", "content": "How many helicopters can a human eat in one sitting?"},
- ]
-'''
+client = OpenAI(base_url="http://xps15:1234/v1", api_key="not-needed")
+#client = OpenAI(base_url="http://xps15:11434/api", api_key="ollama")
+
+# messages = [
+#     {
+#         "role": "system",
+#         "content": "You are a friendly chatbot who always responds in the style of a pirate",
+#     },
+#     {"role": "user", "content": "How many helicopters can a human eat in one sitting?"},
+#  ]
+
 
 filePath = r'C:\WORK\workroom\python\pythonWorkroom\pgvector\lease-11-1958.txt'
 list_ps = split_paragraphs2(filePath)
 
 #for paragraph in list_ps:
 paragraph1 = list_ps[0]
-#paragraph2 = list_ps[1]
-messages = [
-        {"role": "system", "content": generate_system_message()},
-        {"role": "user", "content": generate_prompt(list_ps[0])},
-    ]
-print(messages)
 
-response = client.chat.completions.create(
-  #model="local-model", # this field is currently unused
-  model="llama2",
-  messages = messages,
-  temperature=0,
-  max_tokens=350,
-  top_p=0.95,
-  frequency_penalty=0,
-  presence_penalty=0,
-  stop=None)
 
-output_formatted = GetContentFromChatCompletion(response)
-print(output_formatted)
+response = client.embeddings.create(
+  input=[paragraph1],
+  #model="local-model"
+  model="llama2"
+#   messages = messages,
+#   temperature=0,
+#   max_tokens=350,
+#   top_p=0.95,
+#   frequency_penalty=0,
+#   presence_penalty=0,
+#   stop=None
+  )
 
-for ps in list_ps:
-    messages = [
-            {"role": "system", "content": generate_system_message()},
-            {"role": "user", "content": generate_prompt(ps)},
-        ]
-    print(messages)
-    response = client.chat.completions.create(
-    #model="local-model", # this field is currently unused
-    model="llama2",
-    messages = messages,
-    temperature=0,
-    max_tokens=350,
-    top_p=0.95,
-    frequency_penalty=0,
-    presence_penalty=0,
-    stop=None)
+#output_formatted = GetContentFromChatCompletion(response)
+#embeddings = [v.embedding for v in response.data]
+print(response)
+##################
 
-    output_formatted = GetContentFromChatCompletion(response)
-    print(output_formatted)
+'''
+
+import requests
+import json
+
+url = "http://xps15:11434/api/embeddings"
+
+payload = json.dumps({
+  "model": "llama2",
+  "prompt": "Here is an article about llamas..."
+})
+headers = {
+  'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+#responseJson = json.load(response.text)
+response.raise_for_status()
+# access JSOn content
+jsonResponse = response.json()
+print("Entire JSON response")
+print(jsonResponse)
+
+embeddings = [e for e in jsonResponse['embedding']]
+
+print(embeddings)
+
+
 

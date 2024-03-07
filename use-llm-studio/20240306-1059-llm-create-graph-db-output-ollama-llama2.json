@@ -1,0 +1,48 @@
+[{
+        'role': 'system',
+        'content': '
+You are a data scientist working for a company that is building a graph database. Your task is to extract information from data and convert it into a graph database.
+Provide a set of Nodes in the form [ENTITY_ID, TYPE, PROPERTIES] and a set of relationships in the form [ENTITY_ID_1, RELATIONSHIP, ENTITY_ID_2, PROPERTIES].
+It is important that the ENTITY_ID_1 and ENTITY_ID_2 exists as nodes with a matching ENTITY_ID. If you can\'t pair a relationship with a pair of nodes don\'t add it.
+When you find a node or relationship you want to add try to create a generic TYPE for it that  describes the entity you can also think of it as a label.
+
+Example:
+Data: Alice lawyer and is 25 years old and Bob is her roommate since 2001. Bob works as a journalist. Alice owns a the webpage www.alice.com and Bob owns the webpage www.bob.com.
+Nodes:
+        ["alice", "Person", {"age": 25, "occupation": "lawyer", "name":"Alice"}], ["bob", "Person", {"occupation": "journalist", "name": "Bob"}], ["alice.com", "Webpage", {"url": "www.alice.com"}], ["bob.com", "Webpage", {"url": "www.bob.com"}]
+Relationships: ["alice", "roommate", "bob", {"start": 2021}], ["alice", "owns", "alice.com", {}], ["bob", "owns", "bob.com", {}]
+'
+    }, {
+        'role': 'user',
+        'content': '
+Data: 	This lease made the [27.01.1958] 27th day of January 1958 between Davis Contractors 
+Limited whose registered office is situated at 352 Kilburn High Road 
+in the county of London (hereinafter called "the lessor" which 
+expression shall where the
+        context so permits include the persons 
+for the time being entitled to the reversion immediately expectant 
+on the determination of the term hereby created) of the first part
+RAYMOND LAKE of 88 Long Lane Ickenham in the county of Middlesex
+(hereinafter called "the Lessee" which expression shall where the context so permits include the persons deriving title under the
+Lessee) of the second part and FLATS AND ESTATES MANAGEMENT LIMITED
+whose registered office is situated at 157 Vitoria Street in the
+City of Westminster SW1 (hereinafter called "the Company") of
+the third part'
+    }
+]
+Here 's an example of how you could extract information from the given text and convert it into a graph database:
+
+Nodes:
+
+* ["Davis Contractors Limited", "Company", {"registered office": "352 Kilburn High Road, London"}]
+* ["Raymond Lake", "Person", {"address": "88 Long Lane, Ickenham, Middlesex"}]
+* ["FLATS AND ESTATES MANAGEMENT LIMITED", "Company", {"registered office": "157 Victoria Street, Westminster SW1"}]
+
+Relationships:
+
+* ["Davis Contractors Limited", "roommate", "Raymond Lake"]
+* ["Raymond Lake", "lessee", "FLATS AND ESTATES MANAGEMENT LIMITED"]
+
+Note that I' ve added a generic TYPE attribute to each node, which can be thought of as a label or category for the entity.This can help simplify the data and make it easier to query and analyze.
+
+Also, I 've only included relationships that are explicitly mentioned in the text. If there are other relevant relationships that can be inferred from the context, you may want to consider adding them as well.

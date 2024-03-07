@@ -1,0 +1,25 @@
+###
+GET http://localhost:11434/
+
+###
+GET http://xps15:11434/
+
+###
+POST http://localhost:11434/api/embeddings
+Content-Type: application/json
+
+{
+  "model": "llama2",
+  "prompt": "Here is an article about llamas..."
+}
+
+###
+POST http://xps15:11434/api/embeddings
+Content-Type: application/json
+
+{
+  "model": "llama2",
+  "prompt": "Here is an article about llamas..."
+}
+
+###
