@@ -117,5 +117,3 @@ embeddings = [e for e in jsonResponse['embedding']]
 
 print(embeddings)
 
-
-
