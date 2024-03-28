@@ -20,15 +20,14 @@ class TestsFormid(unittest.TestCase):
         doubleLetterList = ["hello", "123aa321", "abcDDefg"]
         for i in range(len(doubleLetterList)):
             oneInput = doubleLetterList[i]
-            with self.subTest("Message for this subtest", oneInput=oneInput):
-                print(f"{oneInput}: {type(oneInput)}")
+            with self.subTest("doubleLetterList tests return True", oneInput=oneInput):
                 actual =  dl.double_letters(oneInput)
                 self.assertTrue(actual)
-'''
+                
         singleLetterList = ["abc", "abab", "abcabc"]
         for i in range(len(singleLetterList)):
             oneInput = singleLetterList[i]
-            with self.subTest(input=oneInput):
-                actual =  double_letters(input)
+            with self.subTest("singleLetterList tests return False", oneInput=oneInput):
+                actual =  dl.double_letters(oneInput)
                 self.assertFalse(actual)
-'''
+
