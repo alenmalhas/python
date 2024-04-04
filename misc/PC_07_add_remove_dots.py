@@ -1,3 +1,10 @@
+# the short way
+def add_dots2(s):
+    return ".".join(s)
+
+def remove_dots2(s):
+    return s.replace(".", "")
+
 def remove_dots1(string):
     return string.replace(".", "")
 
@@ -8,9 +15,9 @@ def add_dots1(input_string):
     return result_string.strip()
 
 def remove_dots(string):
-    return remove_dots1(string)
+    return remove_dots2(string)
 
 def add_dots(string):
-    return add_dots1(string)
+    return add_dots2(string)
 
 
